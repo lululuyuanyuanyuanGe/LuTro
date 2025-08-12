@@ -15,7 +15,7 @@ class VultrSSH:
             self.ssh_client = paramiko.SSHClient()
             self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             
-            password = vultrServer.server_instance["password"]
+            password = vultrServer.server_instance["server_password"]
             host = vultrServer.server_instance["main_ip"]
 
             if password:
@@ -42,6 +42,7 @@ class VultrSSH:
         Returns:
             dict: {'success': bool, 'stdout': str, 'stderr': str, 'exit_code': int}
         """
+        self.connect()
         if not self.ssh_client:
             return {'success': False, 'error': 'No SSH connection established'}
         
@@ -178,7 +179,3 @@ def execute_remote_script(host, script_file_path, username='root', password=None
     
     return {'success': False, 'error': 'Failed to establish SSH connection'}
 
-
-
-vultrSSH = VultrSSH()
-result = vultrSSH.execute_script_from_file(script_file_path="src//utils//init.bash")

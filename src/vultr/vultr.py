@@ -34,7 +34,7 @@ class VultrServer:
                     self.server_instance = self.server_instance["instance"]
                     print(json.dumps(self.server_instance, indent=2))
                     if self.server_instance["status"] == "active":
-                        self.server_instance["server_pasword"] = server_instance["password"]
+                        self.server_instance["server_password"] = server_instance["password"]
                         with open("vultr_server_instance.json", "w") as f:
                             f.write(json.dumps(self.server_instance, indent=2))
                             print(self.server_instance)
