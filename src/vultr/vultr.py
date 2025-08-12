@@ -43,7 +43,7 @@ class VultrServer:
                 # Load existing server instance from JSON file
                 with open("vultr_server_instance.json", "r") as f:  # ← Use "r" for READ mode
                     self.server_instance = json.load(f)  # ← Load JSON data from file
-                    print(self.server_instance)
+                    print(json.dumps(self.server_instance, indent=2))
 
             
             

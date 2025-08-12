@@ -1,6 +1,5 @@
 import paramiko
 import time
-import sys
 
 from vultr.vultr import vultrServer
 
@@ -17,12 +16,13 @@ class VultrSSH:
             self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             
             password = vultrServer.server_instance["password"]
+            host = vultrServer.server_instance["main_ip"]
 
             if password:
                 # Connect using password
-                self.ssh_client.connect(host, username=username, password=password, timeout=timeout)
+                self.ssh_client.connect(host, username="root", password=password, timeout=30)
             else:
-                raise ValueError("Either password or private_key_path must be provided")
+                raise ValueError("Password must be provided")
             
             print(f"✅ SSH connection established to {host}")
             return True
@@ -176,3 +176,6 @@ def execute_remote_script(host, script_file_path, username='root', password=None
         return result
     
     return {'success': False, 'error': 'Failed to establish SSH connection'}
+
+vultrSSH = VultrSSH()
+vultrSSH.execute_script_from_file("D://VPN//LuTro//src//utils//init.bash")
