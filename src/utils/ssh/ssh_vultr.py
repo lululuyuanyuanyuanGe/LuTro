@@ -92,6 +92,7 @@ class VultrSSH:
             # Read the script file
             with open(script_file_path, 'r') as file:
                 script_content = file.read()
+                print(script_content)
             
             # Apply replacements if provided
             if replacements:
@@ -177,5 +178,7 @@ def execute_remote_script(host, script_file_path, username='root', password=None
     
     return {'success': False, 'error': 'Failed to establish SSH connection'}
 
+
+
 vultrSSH = VultrSSH()
-vultrSSH.execute_script_from_file("D://VPN//LuTro//src//utils//init.bash")
+result = vultrSSH.execute_script_from_file(script_file_path="src//utils//init.bash")
