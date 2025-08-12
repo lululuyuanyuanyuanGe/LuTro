@@ -14,13 +14,13 @@ def _call_request(url: str = None, params: dict = {}, method: str = "GET"):
     try:
         if method.upper() == "POST":
             response = requests.post(url, headers=headers, json=params)
-        if method.upper() == "DELETE":
+        elif method.upper() == "DELETE":
             response = requests.delete(url, headers=headers, json=params)
         else:
             response = requests.get(url, headers=headers, params=params)
         
         # Check if request was successful
-        if response.status_code in [200, 204]:  # 204 is common for successful actions
+        if response.status_code in [200, 201, 202, 204]:  # 204 is common for successful actions
             if response.content:  # Check if there's content to parse
                 return response.json()
             else:
@@ -93,11 +93,12 @@ def vultr_delete_instance(instance_id: str = None):
 
     return _call_request(url = url, method="DELETE")
 
-def vultr_create_instance(region: str = "ord", plan: str = "vc2_1c_1gb", label:str = "LuTro", 
-                          os_id:str = "2571", backups:str = "disable", hostname:str = "Luyuan"):
+def vultr_create_instance(region: str = "ord", plan: str = "vc2-1c-1gb", label:str = "LuTro", 
+                          os_id:int = 2571, backups:str = "disabled", hostname:str = "Luyuan"):
     """
     Args: os_id - 2571 - Ubuntu 25.04 x64
           regions - ord - Chicago
+          plan - vc2-1c-1gb - 5$/month
     """
 
     url = "https://api.vultr.com/v2/instances"
@@ -111,6 +112,7 @@ def vultr_create_instance(region: str = "ord", plan: str = "vc2_1c_1gb", label:s
     }
 
     return _call_request(url=url, params=params, method = "POST")
+
 def vultr_list_os():
     """
     List all the operating systems with it's ids

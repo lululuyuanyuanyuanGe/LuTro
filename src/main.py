@@ -11,9 +11,9 @@ VULTR_API_KEY = os.getenv("VULTR_API_KEY")
 
 def main():
     
-    print("Fetching Vultr account information...")
+    print("Invoking api calls .........")
 
-    response = vultr_create_instance()
+    response = vultr_list_os()
     
     if response:
         print(json.dumps(response, indent=2))
