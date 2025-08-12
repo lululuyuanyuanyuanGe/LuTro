@@ -2,23 +2,17 @@ import os
 import requests
 import json
 from dotenv import load_dotenv
-from utils.vultr import *
-
-load_dotenv()
-
-VULTR_API_KEY = os.getenv("VULTR_API_KEY")
+from vultr.vultr import vultrServer
 
 
 def main():
     
     print("Invoking api calls .........")
 
-    response = vultr_list_vps_instances()
-    # response = vultr_delete_instance(instance_id="b62ba602-84d3-4377-a38d-5464730240a1")
-    # response = vultr_create_instance()
+    # response = vultrServer.instance
     
-    if response:
-        print(json.dumps(response, indent=2))
+    # if response:
+    #     print(json.dumps(response, indent=2))
 
 if __name__ == "__main__":
     main()
