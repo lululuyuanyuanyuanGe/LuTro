@@ -13,7 +13,9 @@ def main():
     
     print("Invoking api calls .........")
 
-    response = vultr_list_os()
+    response = vultr_list_vps_instances()
+    # response = vultr_delete_instance(instance_id="b62ba602-84d3-4377-a38d-5464730240a1")
+    # response = vultr_create_instance()
     
     if response:
         print(json.dumps(response, indent=2))

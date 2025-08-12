@@ -100,6 +100,12 @@ def vultr_create_instance(region: str = "ord", plan: str = "vc2-1c-1gb", label:s
           regions - ord - Chicago
           plan - vc2-1c-1gb - 5$/month
     """
+    import base64
+    with open('src/utils/init.bash', 'r') as file:
+        script = file.read()
+    
+    # Base64 encoide
+    user_data_b64 = base64.b64encode(script.encode('utf-8')).decode('ascii')
 
     url = "https://api.vultr.com/v2/instances"
     params = {
@@ -108,7 +114,8 @@ def vultr_create_instance(region: str = "ord", plan: str = "vc2-1c-1gb", label:s
         "label": label,
         "os_id": os_id,
         "backups": backups,
-        "hostname": hostname
+        "hostname": hostname,
+        "user_data": user_data_b64
     }
 
     return _call_request(url=url, params=params, method = "POST")
