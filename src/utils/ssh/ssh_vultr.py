@@ -1,7 +1,7 @@
 import paramiko
 import time
 
-from vultr.vultr import vultrServer
+from vultr.api import vultrServer
 
 class VultrSSH:
     def __init__(self):

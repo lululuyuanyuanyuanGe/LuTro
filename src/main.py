@@ -17,5 +17,5 @@ def main():
 
 if __name__ == "__main__":
     vultrSSH = VultrSSH()
-    result = vultrSSH.execute_script_from_file(script_file_path="src//utils//init.bash")
-    print(result)
+    # result = vultrSSH.execute_script_from_file(script_file_path="src//utils//bash_scripts//init.bash")
+    # print(result)
