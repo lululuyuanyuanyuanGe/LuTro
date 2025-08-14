@@ -12,12 +12,12 @@ class Cloudflare:
     _instance = None
     _initialized = False
 
-    def __new__(cls):
+    def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super(Cloudflare, cls).__new__(cls)
         return cls._instance
 
-    def __init__(self):
+    def __init__(self, vps_ip):
         if not Cloudflare._initialized:
             Cloudflare._initialized = True
             self.cludflare_api_key = os.getenv("CLOUDFLARE_API_KEY")
@@ -26,7 +26,7 @@ class Cloudflare:
                 "Content-Type": "application/json"
             }
             self.domain_name = os.getenv("DOMAIN_NAME")
-            self.vps_ip = ""
+            self.vps_ip = vps_ip
 
     def _call_request(self, url: str = None, params: dict = {}, method: str = "GET"):
         try:
@@ -113,7 +113,7 @@ class Cloudflare:
         """
         Delete existing record if it exists, then create new one
         """
-        self.vps_ip = vps_ip
+
         if not domain_name:
             domain_name = self.domain_name
         zone_id = self.get_zone_id(domain_name=domain_name)
@@ -171,13 +171,11 @@ class Cloudflare:
             time.sleep(interval)
         
         print(f"❌ DNS resolution timeout after {timeout/60:.1f} minutes")
-        return False
+        return False       
 
-# Initiate the single instance        
-cloudflare = Cloudflare()
 
 if __name__ == "__main__":
-    
+    cloudflare = Cloudflare()
     zone_id = cloudflare.get_zone_id(domain_name="geluyuan.com")
     print("zone_id: ", zone_id)
     formatted_zone_id = json.dumps(zone_id, indent=2)
