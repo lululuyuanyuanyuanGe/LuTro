@@ -35,13 +35,13 @@ class VultrServer:
                     print(json.dumps(self.server_instance, indent=2))
                     if self.server_instance["status"] == "active":
                         self.server_instance["server_password"] = server_instance["password"]
-                        with open("vultr_server_instance.json", "w") as f:
+                        with open("data/vultr_server_instance.json", "w") as f:
                             f.write(json.dumps(self.server_instance, indent=2))
                             print(self.server_instance)
                         break
             else:
                 # Load existing server instance from JSON file
-                with open("vultr_server_instance.json", "r") as f:  # ← Use "r" for READ mode
+                with open("data/vultr_server_instance.json", "r") as f:  # ← Use "r" for READ mode
                     self.server_instance = json.load(f)  # ← Load JSON data from file
                     print(json.dumps(self.server_instance, indent=2))
 
