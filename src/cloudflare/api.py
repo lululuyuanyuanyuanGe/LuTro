@@ -3,6 +3,8 @@ from urllib import request, response
 from dotenv import load_dotenv
 import requests
 import json
+import time
+import socket
 
 load_dotenv()
 
@@ -24,6 +26,7 @@ class Cloudflare:
                 "Content-Type": "application/json"
             }
             self.domain_name = os.getenv("DOMAIN_NAME")
+            self.vps_ip = ""
 
     def _call_request(self, url: str = None, params: dict = {}, method: str = "GET"):
         try:
@@ -107,6 +110,7 @@ class Cloudflare:
 
     def update_or_create_record(self, domain_name, record_name:str = "", record_type:str = "A", vps_ip:str = ""):
         """Delete existing record if it exists, then create new one"""
+        self.vps_ip = vps_ip
         if not record_name:
             record_name = self.domain_name
         zone_id = self.get_zone_id(domain_name=domain_name)
@@ -125,6 +129,46 @@ class Cloudflare:
             return True
         return False
 
+    def wait_for_dns_resolution(self, domain:str = "", vps_ip: str = "", timeout=1800, interval=5):
+        """
+        Block execution until DNS resolution works
+        
+        Args:
+            domain: Domain to test (e.g., "geluyuan.com")
+            vps_ip: Expected IP address (e.g., "216.128.148.99")
+            timeout: Maximum wait time in seconds (default: 30 minutes)
+            interval: Time between tests in seconds (default: 30 seconds)
+        
+        Returns:
+            True if DNS resolution successful, False if timeout
+        """
+        vps_ip = self.vps_ip
+        if not domain:
+            domain = self.domain_name
+        print(f"⏳ Waiting for DNS resolution: {domain} → {vps_ip}")
+        
+        start_time = time.time()
+        test_counter = 1
+        while time.time() - start_time < timeout:
+            try:
+                print("Test count: ", test_counter)
+                resolved_ip = socket.gethostbyname(domain)
+                
+                if resolved_ip == vps_ip:
+                    elapsed = time.time() - start_time
+                    print(f"✅ DNS resolution successful! ({elapsed:.1f} seconds)")
+                    return True
+                else:
+                    print(f"⏳ DNS not ready: {domain} → {resolved_ip} (expected: {vps_ip})")
+                    test_counter += 1
+            except socket.gaierror as e:
+                print(f"⏳ DNS lookup failed: {e}")
+            
+            time.sleep(interval)
+        
+        print(f"❌ DNS resolution timeout after {timeout/60:.1f} minutes")
+        return False
+
 if __name__ == "__main__":
     cloudflare = Cloudflare()
     zone_id = cloudflare.get_zone_id(domain_name="geluyuan.com")
@@ -135,4 +179,5 @@ if __name__ == "__main__":
                                                     vps_ip="216.128.148.99")
     formatted_dns_record = json.dumps(dns_record, indent=2)
     print("dns_record: ", formatted_dns_record)
+    cloudflare.wait_for_dns_resolution()
     # cloudflare.delete_dns_record(zone_id=zone_id, record_id="ca2722b7f47edeaee78af589648fc0c2")
