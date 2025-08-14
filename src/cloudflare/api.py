@@ -93,6 +93,7 @@ class Cloudflare:
     def create_dns_record(self, zone_id, record_name:str = "", record_type:str = "A", vps_ip:str = ""):
         """Create a DNS record"""
         url = f"https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records"
+        vps_ip = self.vps_ip
         if not record_name:
             record_name = "@"
         data = {
@@ -108,23 +109,26 @@ class Cloudflare:
         
         return response
 
-    def update_or_create_record(self, domain_name, record_name:str = "", record_type:str = "A", vps_ip:str = ""):
-        """Delete existing record if it exists, then create new one"""
+    def update_or_create_record(self, domain_name:str ="", record_type:str = "A", vps_ip:str = ""):
+        """
+        Delete existing record if it exists, then create new one
+        """
         self.vps_ip = vps_ip
-        if not record_name:
-            record_name = self.domain_name
+        if not domain_name:
+            domain_name = self.domain_name
         zone_id = self.get_zone_id(domain_name=domain_name)
         # Get existing records
         existing_records = self.get_existing_records(zone_id, record_type)
         
         # Find and delete matching records
         for record in existing_records:
-            if record["name"] == record_name or record["name"] == f"{record_name}.{self.domain_name}":
-                print(f"🗑️  Found existing {record_type} record for {record_name}, deleting...")
+            if record["name"] == domain_name or record["name"] == f"{domain_name}.{self.domain_name}":
+                print(f"🗑️  Found existing {record_type} record for {domain_name}, deleting...")
+                print()
                 self.delete_dns_record(zone_id, record["id"])
         
         # Create the new record
-        response = self.create_dns_record(zone_id, record_name, record_type, vps_ip)
+        response = self.create_dns_record(zone_id, domain_name, record_type, vps_ip)
         if response["success"]:
             return True
         return False
@@ -169,8 +173,11 @@ class Cloudflare:
         print(f"❌ DNS resolution timeout after {timeout/60:.1f} minutes")
         return False
 
+# Initiate the single instance        
+cloudflare = Cloudflare()
+
 if __name__ == "__main__":
-    cloudflare = Cloudflare()
+    
     zone_id = cloudflare.get_zone_id(domain_name="geluyuan.com")
     print("zone_id: ", zone_id)
     formatted_zone_id = json.dumps(zone_id, indent=2)

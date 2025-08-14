@@ -179,3 +179,5 @@ def execute_remote_script(host, script_file_path, username='root', password=None
     
     return {'success': False, 'error': 'Failed to establish SSH connection'}
 
+
+vultrSSH = VultrSSH()
