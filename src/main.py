@@ -24,20 +24,20 @@ def main(mode):
         print("Initializing trojan server on your vps server...")
         vultrSSH.execute_script_from_file(script_file_path="utils/bash_scripts/init_trojan.bash",
                                         replacements={
-                                           "VPS_PUBLIC_IP": vps_ip,
-                                           "PASSWORD": 888
+                                           "{{VPS_PUBLIC_IP}}": vps_ip,
+                                           "{{PASSWORD}}": 888
                                         })
         print("Installing certificate...")
         domain_name = os.getenv("DOMAIN_NAME")
-        vultrServer.execute_script_from_file(script_file_path="utils/bash_scripts/install_certificate.bash",
+        vultrSSH.execute_script_from_file(script_file_path="utils/bash_scripts/install_certificate.bash",
                                             replacements = {
-                                                "DOMAIN": domain_name
+                                                "{{DOMAIN}}": domain_name
                                             })
         print("Hositing static website for disguise...")
-        vultrServer.execute_script_from_file(script_file_path="utils/bash_scripts/host_webpage.bash",
+        vultrSSH.execute_script_from_file(script_file_path="utils/bash_scripts/host_webpage.bash",
                                             replacements = {})
         print("Eeverything ready to go, let start trojan !!!")
-        vultrServer.execute_script_from_file(script_file_path="utils/bash_scripts/run_trojan.bash",
+        vultrSSH.execute_script_from_file(script_file_path="utils/bash_scripts/run_trojan.bash",
                                             replacements = {})
 
     
