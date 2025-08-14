@@ -11,14 +11,32 @@ from vultr.api import VultrServer
 def main(mode):
     if mode == "on":
         print("========Starting to set up trojan on your vps server========")
-        print("Delete the existing vps server")
-        print("Setting up the DNS record for your domain name to your VPS server")
+        print("Delete the existing vps server...")
+        print("Setting up the DNS record for your domain name to your VPS server...")
         vultrServer = VultrServer()
         vps_ip = vultrServer.server_instance["main_ip"]
+        server_password = vultrServer.server_instance["server_password"]
         print(vps_ip)
         cloudflare = Cloudflare(vps_ip=vps_ip)
         cloudflare.update_or_create_record(vps_ip=vps_ip)
-        dns_ready = cloudflare.wait_for_dns_resolution()
+        cloudflare.wait_for_dns_resolution()
+        vultrSSH = VultrSSH(vps_ip=vps_ip, vps_password=server_password)
+        print("Initializing trojan server on your vps server...")
+        vultrSSH.execute_script_from_file(script_file_path="utils/bash_scripts/init_trojan.bash",
+                                        replacements={
+                                           "VPS_PUBLIC_IP": vps_ip,
+                                           "PASSWORD": 888
+                                        })
+        print("Installing certificate...")
+        vultrServer.execute_script_from_file(script_file_path="utils/bash_scripts/install_certificate.bash",
+                                            replacements = {})
+        print("Hositing static website for disguise...")
+        vultrServer.execute_script_from_file(script_file_path="utils/bash_scripts/host_webpage.bash",
+                                            replacements = {})
+        print("Eeverything ready to go, let start trojan !!!")
+        vultrServer.execute_script_from_file(script_file_path="utils/bash_scripts/run_trojan.bash",
+                                            replacements = {})
+
     
     elif mode == "off":
         vultrServer = VultrServer()

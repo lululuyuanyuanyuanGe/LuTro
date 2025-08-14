@@ -1,11 +1,12 @@
 import paramiko
 import time
 
-from vultr.api import vultrServer
 
 class VultrSSH:
-    def __init__(self):
+    def __init__(self, vps_ip, vps_password):
         self.ssh_client = None
+        self.vps_ip = vps_ip
+        self.vps_password = vps_password
     
     def connect(self):
         """
@@ -15,8 +16,8 @@ class VultrSSH:
             self.ssh_client = paramiko.SSHClient()
             self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             
-            password = vultrServer.server_instance["server_password"]
-            host = vultrServer.server_instance["main_ip"]
+            password = self.vps_password
+            host = self.vps_ip
 
             if password:
                 # Connect using password

@@ -37,13 +37,6 @@ else
     exit 1
 fi
 
-# Get public IP using external service (more reliable than metadata API)
-VPS_PUBLIC_IP=$(curl -s ifconfig.me)
-
-# Fallback if first method fails
-if [ -z "$VPS_PUBLIC_IP" ]; then
-    VPS_PUBLIC_IP=$(curl -s icanhazip.com)
-fi
 
 
 # Create config.json with the VPS's own IP as remote_addr
@@ -52,7 +45,7 @@ cat > config.json << EOF
     "run_type": "server",
     "local_addr": "0.0.0.0",
     "local_port": 443,
-    "remote_addr": "${VPS_PUBLIC_IP}",
+    "remote_addr": "{{VPS_PUBLIC_IP}}",
     "remote_port": 80,
     "password": [
         "{{PASSWORD}}"
