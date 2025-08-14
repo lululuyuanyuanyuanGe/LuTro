@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechVibe - Latest Tech Trends & Innovation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --dark-bg: #0a0a0a;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --glow-color: #667eea;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(ellipse at random, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(1deg); }
+            66% { transform: translateY(10px) rotate(-1deg); }
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+            text-shadow: 0 0 10px var(--glow-color);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-gradient);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Main content */
+        main {
+            margin-top: 100px;
+            padding: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Hero section */
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            margin-bottom: 4rem;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.5)); }
+            to { filter: drop-shadow(0 0 30px rgba(102, 126, 234, 0.8)); }
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Articles grid */
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .article-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .article-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .article-card:hover::before {
+            left: 100%;
+        }
+
+        .article-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+            border-color: var(--glow-color);
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .article-tag {
+            padding: 0.3rem 1rem;
+            background: var(--accent-gradient);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .article-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .article-card p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .read-more {
+            display: inline-flex;
+            align-items: center;
+            color: var(--glow-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .read-more:hover {
+            color: var(--text-primary);
+            text-shadow: 0 0 10px var(--glow-color);
+        }
+
+        .read-more::after {
+            content: ' →';
+            transition: transform 0.3s ease;
+        }
+
+        .read-more:hover::after {
+            transform: translateX(5px);
+        }
+
+        /* Featured article */
+        .featured-article {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .featured-article h2 {
+            font-size: 2rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Trending section */
+        .trending {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 4rem;
+        }
+
+        .trending h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .trending-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .trending-item {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .trending-item:hover {
+            background: var(--primary-gradient);
+            transform: scale(1.05);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .social-links a {
+            width: 50px;
+            height: 50px;
+            background: var(--card-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .social-links a:hover {
+            background: var(--primary-gradient);
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .articles-grid {
+                grid-template-columns: 1fr;
+            }
+
+            main {
+                padding: 1rem;
+            }
+
+            header {
+                padding: 1rem;
+            }
+        }
+
+        /* Scroll animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <header>
+        <nav>
+            <div class="logo">TechVibe</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#articles">Articles</a></li>
+                <li><a href="#trending">Trending</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero fade-in">
+            <h1>The Future is Now</h1>
+            <p>Discover the latest innovations, breakthrough technologies, and digital trends shaping tomorrow's world</p>
+        </section>
+
+        <section class="articles-grid">
+            <article class="article-card featured-article fade-in">
+                <div class="article-meta">
+                    <span class="article-tag">Featured</span>
+                    <span>August 14, 2025</span>
+                </div>
+                <h2>AI Agents Revolutionize Software Development</h2>
+                <p>The emergence of AI coding agents is transforming how developers write, test, and deploy software. These intelligent systems can now understand complex requirements, generate production-ready code, and even debug themselves, marking a new era in software engineering.</p>
+                <a href="#" class="read-more">Read Full Story</a>
+            </article>
+
+            <article class="article-card fade-in">
+                <div class="article-meta">
+                    <span class="article-tag">Quantum</span>
+                    <span>August 13, 2025</span>
+                </div>
+                <h2>Quantum Computing Breakthrough</h2>
+                <p>Scientists achieve fault-tolerant quantum computing with over 1000 qubits, bringing us closer to solving complex problems in cryptography, drug discovery, and climate modeling.</p>
+                <a href="#" class="read-more">Learn More</a>
+            </article>
+
+            <article class="article-card fade-in">
+                <div class="article-meta">
+                    <span class="article-tag">AR/VR</span>
+                    <span>August 12, 2025</span>
+                </div>
+                <h2>Spatial Computing Goes mainstream</h2>
+                <p>Apple's Vision Pro successor and Meta's new AR glasses are making spatial computing accessible to millions, reshaping how we interact with digital content in our physical world.</p>
+                <a href="#" class="read-more">Explore</a>
+            </article>
+
+            <article class="article-card fade-in">
+                <div class="article-meta">
+                    <span class="article-tag">Green Tech</span>
+                    <span>August 11, 2025</span>
+                </div>
+                <h2>Sustainable Tech Revolution</h2>
+                <p>Revolutionary battery technology and carbon-capture innovations are driving the green energy transition, with tech giants achieving carbon negativity ahead of schedule.</p>
+                <a href="#" class="read-more">Discover</a>
+            </article>
+
+            <article class="article-card fade-in">
+                <div class="article-meta">
+                    <span class="article-tag">Biotech</span>
+                    <span>August 10, 2025</span>
+                </div>
+                <h2>CRISPR 3.0 Enables Precision Medicine</h2>
+                <p>The latest CRISPR technology allows for unprecedented precision in gene editing, opening new possibilities for treating genetic disorders and personalized medicine.</p>
+                <a href="#" class="read-more">Read More</a>
+            </article>
+
+            <article class="article-card fade-in">
+                <div class="article-meta">
+                    <span class="article-tag">Robotics</span>
+                    <span>August 9, 2025</span>
+                </div>
+                <h2>Humanoid Robots Enter the Workforce</h2>
+                <p>Tesla's Optimus and Boston Dynamics' latest models are beginning to take on real jobs in manufacturing, logistics, and healthcare, marking the dawn of the robotic workforce.</p>
+                <a href="#" class="read-more">Watch Now</a>
+            </article>
+        </section>
+
+        <section class="trending fade-in">
+            <h3>Trending Topics</h3>
+            <div class="trending-list">
+                <div class="trending-item">Neural Interfaces</div>
+                <div class="trending-item">6G Networks</div>
+                <div class="trending-item">Digital Twins</div>
+                <div class="trending-item">Edge AI</div>
+                <div class="trending-item">Metaverse</div>
+                <div class="trending-item">Web3</div>
+                <div class="trending-item">Autonomous Vehicles</div>
+                <div class="trending-item">Smart Cities</div>
+                <div class="trending-item">Synthetic Biology</div>
+                <div class="trending-item">Quantum Internet</div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="social-links">
+            <a href="#">📱</a>
+            <a href="#">💻</a>
+            <a href="#">🚀</a>
+            <a href="#">⚡</a>
+        </div>
+        <p>&copy; 2025 TechVibe. Shaping the future through technology.</p>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Add fade-in animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationDelay = Math.random() * 0.3 + 's';
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all article cards
+        document.querySelectorAll('.article-card').forEach(card => {
+            observer.observe(card);
+        });
+
+        // Header scroll effect
+        let lastScrollY = window.scrollY;
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > lastScrollY && window.scrollY > 100) {
+                header.style.transform = 'translateY(-100%)';
+            } else {
+                header.style.transform = 'translateY(0)';
+            }
+            lastScrollY = window.scrollY;
+        });
+
+        // Trending items interaction
+        document.querySelectorAll('.trending-item').forEach(item => {
+            item.addEventListener('click', function() {
+                this.style.background = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+                setTimeout(() => {
+                    this.style.background = 'rgba(255, 255, 255, 0.1)';
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>

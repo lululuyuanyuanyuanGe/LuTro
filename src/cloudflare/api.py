@@ -103,7 +103,7 @@ class Cloudflare:
         print("create_dns_record返回：", formated_response)
 
         
-        return response["result"]
+        return response
 
     def update_or_create_record(self, domain_name, record_name:str = "", record_type:str = "A", vps_ip:str = ""):
         """Delete existing record if it exists, then create new one"""
@@ -120,7 +120,10 @@ class Cloudflare:
                 self.delete_dns_record(zone_id, record["id"])
         
         # Create the new record
-        return self.create_dns_record(zone_id, record_name, record_type, vps_ip)
+        response = self.create_dns_record(zone_id, record_name, record_type, vps_ip)
+        if response["success"]:
+            return True
+        return False
 
 if __name__ == "__main__":
     cloudflare = Cloudflare()
@@ -132,4 +135,4 @@ if __name__ == "__main__":
                                                     vps_ip="216.128.148.99")
     formatted_dns_record = json.dumps(dns_record, indent=2)
     print("dns_record: ", formatted_dns_record)
-    cloudflare.delete_dns_record(zone_id=zone_id, record_id="ca2722b7f47edeaee78af589648fc0c2")
+    # cloudflare.delete_dns_record(zone_id=zone_id, record_id="ca2722b7f47edeaee78af589648fc0c2")
