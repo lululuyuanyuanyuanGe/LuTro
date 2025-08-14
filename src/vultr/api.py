@@ -177,6 +177,3 @@ class VultrServer:
 
         return self._call_request(url=url, method="GET")
 
-
-vultrServer = VultrServer()
-
