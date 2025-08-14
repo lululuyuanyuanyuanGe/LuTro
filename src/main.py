@@ -28,8 +28,11 @@ def main(mode):
                                            "PASSWORD": 888
                                         })
         print("Installing certificate...")
+        domain_name = os.getenv("DOMAIN_NAME")
         vultrServer.execute_script_from_file(script_file_path="utils/bash_scripts/install_certificate.bash",
-                                            replacements = {})
+                                            replacements = {
+                                                "DOMAIN": domain_name
+                                            })
         print("Hositing static website for disguise...")
         vultrServer.execute_script_from_file(script_file_path="utils/bash_scripts/host_webpage.bash",
                                             replacements = {})

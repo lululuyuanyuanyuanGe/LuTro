@@ -4,8 +4,7 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-DOMAIN="$1"
-EMAIL="${2:-admin@${DOMAIN}}"
+EMAIL="${2:-admin@${{{DOMAIN}}}}"
 CERT_DIR="/root/trojan"
 MAX_RETRIES=3
 RETRY_COUNT=0
@@ -49,19 +48,19 @@ install_certificate() {
     ufw allow 80
     systemctl stop nginx
     
-    /root/.acme.sh/acme.sh --issue -d "$DOMAIN" --standalone -k ec-256
+    /root/.acme.sh/acme.sh --issue -d "${{DOMAIN}}" --standalone -k ec-256
     
     if [ $? -ne 0 ]; then
         /root/.acme.sh/acme.sh --set-default-ca --server letsencrypt
-        /root/.acme.sh/acme.sh --issue -d "$DOMAIN" --standalone -k ec-256
+        /root/.acme.sh/acme.sh --issue -d "${{DOMAIN}}" --standalone -k ec-256
         
         if [ $? -ne 0 ]; then
             /root/.acme.sh/acme.sh --set-default-ca --server zerossl
-            /root/.acme.sh/acme.sh --issue -d "$DOMAIN" --standalone -k ec-256
+            /root/.acme.sh/acme.sh --issue -d "${{DOMAIN}}" --standalone -k ec-256
             
             if [ $? -ne 0 ]; then
                 /root/.acme.sh/acme.sh --set-default-ca --server buypass
-                /root/.acme.sh/acme.sh --issue -d "$DOMAIN" --standalone -k ec-256
+                /root/.acme.sh/acme.sh --issue -d "${{DOMAIN}}" --standalone -k ec-256
                 
                 if [ $? -ne 0 ]; then
                     systemctl start nginx
@@ -71,7 +70,7 @@ install_certificate() {
         fi
     fi
     
-    /root/.acme.sh/acme.sh --installcert -d "$DOMAIN" --ecc \
+    /root/.acme.sh/acme.sh --installcert -d "${{DOMAIN}}" --ecc \
         --key-file "$CERT_DIR/server.key" \
         --fullchain-file "$CERT_DIR/server.crt"
     
