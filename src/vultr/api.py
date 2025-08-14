@@ -115,7 +115,7 @@ class VultrServer:
         Delete an instance
         """
         if not instance_id:
-            print("instance_ids are empty")
+            instance_id = self.server_instance["id"]
 
         url = f"https://api.vultr.com/v2/instances/{instance_id}"
 

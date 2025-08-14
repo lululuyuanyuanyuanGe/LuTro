@@ -5,6 +5,8 @@ import requests
 import json
 import time
 import socket
+import subprocess
+import platform
 
 load_dotenv()
 
@@ -133,9 +135,41 @@ class Cloudflare:
             return True
         return False
 
-    def wait_for_dns_resolution(self, domain:str = "", vps_ip: str = "", timeout=1800, interval=5):
+    def _flush_dns_cache(self):
+        """Flush the local DNS cache based on the operating system."""
+        system = platform.system().lower()
+        try:
+            if system == "windows":
+                subprocess.run(["ipconfig", "/flushdns"], check=True, capture_output=True)
+                print("✅ DNS cache flushed successfully on Windows.")
+            
+            elif system == "darwin":  # macOS
+                subprocess.run(["sudo", "dscacheutil", "-flushcache"], check=True, capture_output=True)
+                subprocess.run(["sudo", "killall", "-HUP", "mDNSResponder"], check=True, capture_output=True)
+                print("✅ DNS cache flushed successfully on macOS.")
+            
+            elif system == "linux":
+                subprocess.run(["sudo", "systemd-resolve", "--flush-caches"], check=True, capture_output=True)
+                print("✅ DNS cache flushed successfully on Linux.")
+            
+            else:
+                print("⚠️ Unsupported OS for automatic DNS flush. Please flush manually.")
+                return False
+            
+            return True
+        
+        except subprocess.CalledProcessError as e:
+            print(f"⚠️ Failed to flush DNS cache: {e}. Continuing without flush.")
+            return False
+        except Exception as e:
+            print(f"⚠️ Error during DNS flush: {e}. Continuing without flush.")
+            return False
+
+    def wait_for_dns_resolution(self, domain: str = "", vps_ip: str = "", timeout=1800, interval=30):
         """
-        Block execution until DNS resolution works
+        Block execution until DNS resolution works.
+        
+        This modified version first clears the local DNS cache, then tests the resolver.
         
         Args:
             domain: Domain to test (e.g., "geluyuan.com")
@@ -151,12 +185,16 @@ class Cloudflare:
             domain = self.domain_name
         print(f"⏳ Waiting for DNS resolution: {domain} → {vps_ip}")
         
+        # Step 1: Clear the local DNS cache before testing
+        self._flush_dns_cache()
+        
         start_time = time.time()
         test_counter = 1
         while time.time() - start_time < timeout:
             try:
                 print("Test count: ", test_counter)
                 resolved_ip = socket.gethostbyname(domain)
+                print("resolved_ip: ", resolved_ip)
                 
                 if resolved_ip == vps_ip:
                     elapsed = time.time() - start_time
@@ -165,13 +203,14 @@ class Cloudflare:
                 else:
                     print(f"⏳ DNS not ready: {domain} → {resolved_ip} (expected: {vps_ip})")
                     test_counter += 1
+            
             except socket.gaierror as e:
                 print(f"⏳ DNS lookup failed: {e}")
             
             time.sleep(interval)
         
         print(f"❌ DNS resolution timeout after {timeout/60:.1f} minutes")
-        return False       
+        return False
 
 
 if __name__ == "__main__":
