@@ -121,10 +121,11 @@ class Cloudflare:
         zone_id = self.get_zone_id(domain_name=domain_name)
         # Get existing records
         existing_records = self.get_existing_records(zone_id, record_type)
+        existing_vps_ip = existing_records[0]["content"]
         
         # Find and delete matching records
         for record in existing_records:
-            if record["name"] == domain_name or record["name"] == f"{domain_name}.{self.domain_name}":
+            if (record["name"] == domain_name or record["name"] == f"{domain_name}.{self.domain_name}") and self.vps_ip != existing_vps_ip:
                 print(f"🗑️  Found existing {record_type} record for {domain_name}, deleting...")
                 print()
                 self.delete_dns_record(zone_id, record["id"])

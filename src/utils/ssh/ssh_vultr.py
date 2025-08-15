@@ -227,7 +227,7 @@ class VultrSSH:
                     script_content = script_content.replace(placeholder, str(value))
             
             # Execute the modified script
-            return await self.execute_script_async(script_content, script_file_path timeout)
+            return await self.execute_script_async(script_content, script_file_path, timeout)
             
         except FileNotFoundError:
             return {'success': False, 'error': f'Script file not found: {script_file_path}'}
