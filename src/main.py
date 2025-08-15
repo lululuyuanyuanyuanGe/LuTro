@@ -33,12 +33,7 @@ def main(mode):
                     "{{PASSWORD}}": 888
                 }
             },
-            {
-                'file_path': "src/utils/bash_scripts/install_certificate.bash",
-                'replacements': {
-                    "{{DOMAIN}}": domain_name
-                }
-            },
+            
             {
                 'file_path': "src/utils/bash_scripts/host_webpage.bash",
                 'replacements': {}
