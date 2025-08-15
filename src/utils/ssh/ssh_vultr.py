@@ -96,13 +96,11 @@ class VultrSSH:
             # Read the script file
             with open(script_file_path, 'r') as file:
                 script_content = file.read()
-                print(script_content)
             
             # Apply replacements if provided
             if replacements:
                 for placeholder, value in replacements.items():
                     script_content = script_content.replace(placeholder, str(value))
-                print(f"📝 Applied {len(replacements)} placeholder replacements")
             
             # Execute the modified script
             return self.execute_script(script_content, timeout)
@@ -166,7 +164,7 @@ class VultrSSH:
             print(f"❌ Async SSH connection failed: {e}")
             return None
     
-    async def execute_script_async(self, script_content, timeout=300):
+    async def execute_script_async(self, script_content, script_file_path, timeout=300):
         """
         Execute a bash script on the remote server asynchronously
         
@@ -182,7 +180,7 @@ class VultrSSH:
             return {'success': False, 'error': 'No SSH connection established'}
         
         try:
-            print("📤 Executing script on remote server (async)...")
+            print(f"📤 Executing script {script_file_path} on remote server (async)...")
             
             # Execute the script
             result = await conn.run(script_content, timeout=timeout)
@@ -194,12 +192,9 @@ class VultrSSH:
                 'exit_code': result.exit_status
             }
             
-            if return_data['success']:
-                print("✅ Script executed successfully (async)")
-            else:
-                print(f"❌ Script execution failed with exit code: {result.exit_status}")
+            if not return_data['success']:
                 if result.stderr:
-                    print(f"Error output: {result.stderr}")
+                    return_data['error'] = result.stderr
             
             return return_data
             
@@ -225,16 +220,14 @@ class VultrSSH:
             # Read the script file
             with open(script_file_path, 'r') as file:
                 script_content = file.read()
-                print(script_content)
             
             # Apply replacements if provided
             if replacements:
                 for placeholder, value in replacements.items():
                     script_content = script_content.replace(placeholder, str(value))
-                print(f"📝 Applied {len(replacements)} placeholder replacements")
             
             # Execute the modified script
-            return await self.execute_script_async(script_content, timeout)
+            return await self.execute_script_async(script_content, script_file_path timeout)
             
         except FileNotFoundError:
             return {'success': False, 'error': f'Script file not found: {script_file_path}'}

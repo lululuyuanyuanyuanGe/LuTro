@@ -53,9 +53,12 @@ def main(mode):
         for i, result in enumerate(setup_results):
             script_name = setup_configs[i]['file_path'].split('/')[-1]
             if result['success']:
-                print(f"✅ {script_name} executed successfully")
+                print(f"✅ {script_name} completed successfully")
             else:
-                print(f"❌ {script_name} failed: {result.get('error', 'Unknown error')}")
+                error_msg = result.get('error', 'Unknown error')
+                if result.get('stderr'):
+                    error_msg = result['stderr'][:200] + "..." if len(result['stderr']) > 200 else result['stderr']
+                print(f"❌ {script_name} failed - Error: {error_msg}")
                 all_setup_successful = False
         
         # Only run trojan if all setup scripts succeeded
