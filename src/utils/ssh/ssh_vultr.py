@@ -2,7 +2,6 @@ import paramiko
 import time
 import asyncio
 import asyncssh
-from concurrent.futures import ThreadPoolExecutor
 
 
 class VultrSSH:
@@ -298,54 +297,3 @@ class VultrSSH:
             dict: {'success': bool, 'stdout': str, 'stderr': str, 'exit_code': int}
         """
         return asyncio.run(self.execute_script_from_file_async(script_file_path, replacements, timeout))
-
-# Convenience function for quick script execution
-def execute_remote_script(host, script_file_path, username='root', password=None, 
-                         private_key_path=None, replacements=None):
-    """
-    Convenience function to quickly execute a script on a remote server
-    
-    Args:
-        host (str): Server IP address
-        script_file_path (str): Path to bash script file
-        username (str): SSH username
-        password (str): SSH password
-        private_key_path (str): Path to private key file
-        replacements (dict): Placeholder replacements
-        
-    Returns:
-        dict: Execution result
-    """
-    ssh = VultrSSH()
-    
-    # Wait for SSH to be ready
-    if not ssh.wait_for_ssh_ready(host, username, password, private_key_path):
-        return {'success': False, 'error': 'SSH service not available'}
-    
-    # Connect and execute script
-    if ssh.connect(host, username, password, private_key_path):
-        result = ssh.execute_script_from_file(script_file_path, replacements)
-        ssh.disconnect()
-        return result
-    
-    return {'success': False, 'error': 'Failed to establish SSH connection'}
-
-
-def execute_multiple_remote_scripts(host, script_configs, username='root', password=None, private_key_path=None):
-    """
-    Convenience function to execute multiple scripts concurrently on a remote server
-    
-    Args:
-        host (str): Server IP address
-        script_configs (list): List of script configurations
-            [{'file_path': str, 'replacements': dict, 'timeout': int}, ...]
-        username (str): SSH username
-        password (str): SSH password
-        private_key_path (str): Path to private key file
-        
-    Returns:
-        list: List of execution results
-    """
-    ssh = VultrSSH(host, password)
-    return ssh.execute_scripts_concurrently(script_configs)
-

@@ -21,24 +21,57 @@ def main(mode):
         cloudflare.update_or_create_record(vps_ip=vps_ip)
         cloudflare.wait_for_dns_resolution()
         vultrSSH = VultrSSH(vps_ip=vps_ip, vps_password=server_password)
-        print("Initializing trojan server on your vps server...")
-        vultrSSH.execute_script_from_file(script_file_path="utils/bash_scripts/init_trojan.bash",
-                                        replacements={
-                                           "{{VPS_PUBLIC_IP}}": vps_ip,
-                                           "{{PASSWORD}}": 888
-                                        })
-        print("Installing certificate...")
+        print("Setting up trojan server with all components...")
         domain_name = os.getenv("DOMAIN_NAME")
-        vultrSSH.execute_script_from_file(script_file_path="utils/bash_scripts/install_certificate.bash",
-                                            replacements = {
-                                                "{{DOMAIN}}": domain_name
-                                            })
-        print("Hositing static website for disguise...")
-        vultrSSH.execute_script_from_file(script_file_path="utils/bash_scripts/host_webpage.bash",
-                                            replacements = {})
-        print("Eeverything ready to go, let start trojan !!!")
-        vultrSSH.execute_script_from_file(script_file_path="utils/bash_scripts/run_trojan.bash",
-                                            replacements = {})
+        
+        # First run the setup scripts concurrently
+        setup_configs = [
+            {
+                'file_path': "src/utils/bash_scripts/init_trojan.bash",
+                'replacements': {
+                    "{{VPS_PUBLIC_IP}}": vps_ip,
+                    "{{PASSWORD}}": 888
+                }
+            },
+            {
+                'file_path': "src/utils/bash_scripts/install_certificate.bash",
+                'replacements': {
+                    "{{DOMAIN}}": domain_name
+                }
+            },
+            {
+                'file_path': "src/utils/bash_scripts/host_webpage.bash",
+                'replacements': {}
+            }
+        ]
+        
+        print("Running setup scripts concurrently...")
+        setup_results = vultrSSH.execute_scripts_concurrently(setup_configs)
+        
+        # Check if all setup scripts succeeded
+        all_setup_successful = True
+        for i, result in enumerate(setup_results):
+            script_name = setup_configs[i]['file_path'].split('/')[-1]
+            if result['success']:
+                print(f"✅ {script_name} executed successfully")
+            else:
+                print(f"❌ {script_name} failed: {result.get('error', 'Unknown error')}")
+                all_setup_successful = False
+        
+        # Only run trojan if all setup scripts succeeded
+        if all_setup_successful:
+            print("All setup complete. Starting trojan server...")
+            trojan_result = vultrSSH.execute_script_from_file_concurrent(
+                script_file_path="src/utils/bash_scripts/run_trojan.bash",
+                replacements={}
+            )
+            
+            if trojan_result['success']:
+                print("✅ Trojan server started successfully")
+            else:
+                print(f"❌ Trojan server failed to start: {trojan_result.get('error', 'Unknown error')}")
+        else:
+            print("❌ Setup failed. Trojan server not started.")
 
     
     elif mode == "off":
