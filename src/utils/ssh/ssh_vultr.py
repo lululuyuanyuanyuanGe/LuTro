@@ -1,5 +1,8 @@
 import paramiko
 import time
+import asyncio
+import asyncssh
+from concurrent.futures import ThreadPoolExecutor
 
 
 class VultrSSH:
@@ -148,6 +151,153 @@ class VultrSSH:
             self.ssh_client.close()
             self.ssh_client = None
             print("🔌 SSH connection closed")
+    
+    async def _create_async_ssh_connection(self):
+        """Create an async SSH connection using asyncssh"""
+        try:
+            conn = await asyncssh.connect(
+                self.vps_ip,
+                username='root',
+                password=self.vps_password,
+                known_hosts=None,
+                connect_timeout=30
+            )
+            return conn
+        except Exception as e:
+            print(f"❌ Async SSH connection failed: {e}")
+            return None
+    
+    async def execute_script_async(self, script_content, timeout=300):
+        """
+        Execute a bash script on the remote server asynchronously
+        
+        Args:
+            script_content (str): The bash script content to execute
+            timeout (int): Script execution timeout in seconds
+            
+        Returns:
+            dict: {'success': bool, 'stdout': str, 'stderr': str, 'exit_code': int}
+        """
+        conn = await self._create_async_ssh_connection()
+        if not conn:
+            return {'success': False, 'error': 'No SSH connection established'}
+        
+        try:
+            print("📤 Executing script on remote server (async)...")
+            
+            # Execute the script
+            result = await conn.run(script_content, timeout=timeout)
+            
+            return_data = {
+                'success': result.exit_status == 0,
+                'stdout': result.stdout,
+                'stderr': result.stderr,
+                'exit_code': result.exit_status
+            }
+            
+            if return_data['success']:
+                print("✅ Script executed successfully (async)")
+            else:
+                print(f"❌ Script execution failed with exit code: {result.exit_status}")
+                if result.stderr:
+                    print(f"Error output: {result.stderr}")
+            
+            return return_data
+            
+        except Exception as e:
+            print(f"❌ Script execution error (async): {e}")
+            return {'success': False, 'error': str(e)}
+        finally:
+            conn.close()
+    
+    async def execute_script_from_file_async(self, script_file_path, replacements=None, timeout=300):
+        """
+        Read and execute a bash script from file with optional placeholder replacements (async)
+        
+        Args:
+            script_file_path (str): Path to the bash script file
+            replacements (dict): Dictionary of placeholder replacements {placeholder: value}
+            timeout (int): Script execution timeout in seconds
+            
+        Returns:
+            dict: {'success': bool, 'stdout': str, 'stderr': str, 'exit_code': int}
+        """
+        try:
+            # Read the script file
+            with open(script_file_path, 'r') as file:
+                script_content = file.read()
+                print(script_content)
+            
+            # Apply replacements if provided
+            if replacements:
+                for placeholder, value in replacements.items():
+                    script_content = script_content.replace(placeholder, str(value))
+                print(f"📝 Applied {len(replacements)} placeholder replacements")
+            
+            # Execute the modified script
+            return await self.execute_script_async(script_content, timeout)
+            
+        except FileNotFoundError:
+            return {'success': False, 'error': f'Script file not found: {script_file_path}'}
+        except Exception as e:
+            return {'success': False, 'error': f'Error reading script file: {e}'}
+    
+    async def execute_multiple_scripts_async(self, script_configs):
+        """
+        Execute multiple scripts concurrently
+        
+        Args:
+            script_configs (list): List of script configurations
+                [{'file_path': str, 'replacements': dict, 'timeout': int}, ...]
+                
+        Returns:
+            list: List of execution results in the same order as input
+        """
+        tasks = []
+        for config in script_configs:
+            task = self.execute_script_from_file_async(
+                config['file_path'],
+                config.get('replacements'),
+                config.get('timeout', 300)
+            )
+            tasks.append(task)
+        
+        print(f"🔄 Executing {len(tasks)} scripts concurrently...")
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Handle any exceptions that occurred
+        for i, result in enumerate(results):
+            if isinstance(result, Exception):
+                results[i] = {'success': False, 'error': str(result)}
+        
+        return results
+    
+    def execute_scripts_concurrently(self, script_configs):
+        """
+        Synchronous wrapper for executing multiple scripts concurrently
+        
+        Args:
+            script_configs (list): List of script configurations
+                [{'file_path': str, 'replacements': dict, 'timeout': int}, ...]
+                
+        Returns:
+            list: List of execution results in the same order as input
+        """
+        return asyncio.run(self.execute_multiple_scripts_async(script_configs))
+    
+    def execute_script_from_file_concurrent(self, script_file_path, replacements=None, timeout=300):
+        """
+        Synchronous wrapper for executing a single script asynchronously
+        
+        Args:
+            script_file_path (str): Path to the bash script file
+            replacements (dict): Dictionary of placeholder replacements {placeholder: value}
+            timeout (int): Script execution timeout in seconds
+            
+        Returns:
+            dict: {'success': bool, 'stdout': str, 'stderr': str, 'exit_code': int}
+        """
+        return asyncio.run(self.execute_script_from_file_async(script_file_path, replacements, timeout))
 
 # Convenience function for quick script execution
 def execute_remote_script(host, script_file_path, username='root', password=None, 
@@ -179,4 +329,23 @@ def execute_remote_script(host, script_file_path, username='root', password=None
         return result
     
     return {'success': False, 'error': 'Failed to establish SSH connection'}
+
+
+def execute_multiple_remote_scripts(host, script_configs, username='root', password=None, private_key_path=None):
+    """
+    Convenience function to execute multiple scripts concurrently on a remote server
+    
+    Args:
+        host (str): Server IP address
+        script_configs (list): List of script configurations
+            [{'file_path': str, 'replacements': dict, 'timeout': int}, ...]
+        username (str): SSH username
+        password (str): SSH password
+        private_key_path (str): Path to private key file
+        
+    Returns:
+        list: List of execution results
+    """
+    ssh = VultrSSH(host, password)
+    return ssh.execute_scripts_concurrently(script_configs)
 
