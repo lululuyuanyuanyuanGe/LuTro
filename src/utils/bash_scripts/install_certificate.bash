@@ -2,7 +2,7 @@
 
 DOMAIN="{{DOMAIN}}"
 EMAIL="admin@${DOMAIN}"
-CERT_DIR="/root/trojan"
+CERT_DIR="/trojan"
 MAX_RETRIES=3
 RETRY_COUNT=0
 
