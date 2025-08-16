@@ -104,7 +104,7 @@ def main(mode):
     #     print(json.dumps(response, indent=2))
 
 if __name__ == "__main__":
-    main("off")
+    main("on")
     # main("off")
 
     # result = vultrSSH.execute_script_from_file(script_file_path="src//utils//bash_scripts//init.bash")

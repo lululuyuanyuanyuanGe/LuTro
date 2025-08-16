@@ -26,6 +26,7 @@ class VultrServer:
                         "Content-Type": "application/json"
                     }
             server_instances = self.list_vps_instances()["instances"]
+            print("server instances on vultr: ", server_instances)
             if not server_instances:
                 server_instance = self.create_instance()
                 while True:
