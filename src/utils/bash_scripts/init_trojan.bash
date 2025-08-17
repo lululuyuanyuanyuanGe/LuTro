@@ -6,6 +6,14 @@ ZIP_FILE="trojan-go-linux-amd64.zip"
 
 apt update
 apt install -y unzip wget
+
+# Check if trojan folder already exists and remove it
+if [ -d "/${FOLDER_NAME}" ]; then
+    echo "Removing existing trojan folder..."
+    rm -rf "/${FOLDER_NAME}"
+fi
+
+# Create fresh trojan folder
 mkdir -p "/${FOLDER_NAME}"
 
 if [ $? -eq 0 ]; then

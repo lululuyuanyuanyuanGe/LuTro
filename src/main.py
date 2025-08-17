@@ -11,8 +11,6 @@ from vultr.api import VultrServer
 def main(mode):
     if mode == "on":
         print("========Starting to set up trojan on your vps server========")
-        print("Delete the existing vps server...")
-        print("Setting up the DNS record for your domain name to your VPS server...")
         vultrServer = VultrServer()
         vps_ip = vultrServer.server_instance["main_ip"]
         server_password = vultrServer.server_instance["server_password"]

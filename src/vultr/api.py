@@ -3,7 +3,7 @@ import json
 import os
 import requests
 from dotenv import load_dotenv
-from pathlib import Path
+import base64
 
 load_dotenv()
 
@@ -119,16 +119,21 @@ class VultrServer:
             instance_id = self.server_instance["id"]
 
         url = f"https://api.vultr.com/v2/instances/{instance_id}"
-
+        with open("data/vultr_server_instance.json", "w") as f:
+            f.write("")
         return self._call_request(url = url, method="DELETE")
 
     def create_instance(self, region: str = "ord", plan: str = "vc2-1c-1gb", label:str = "LuTro", 
-                            os_id:int = 2571, backups:str = "disabled", hostname:str = "Luyuan", trojan_password:str = "888"):
+                            os_id:int = 2571, backups:str = "disabled", hostname:str = "Luyuan", user_data:str = ""):
         """
         Args: os_id - 2571 - Ubuntu 25.04 x64
             regions - ord - Chicago
             plan - vc2-1c-1gb - 5$/month
         """
+        if not user_data:
+            with open("utils/bash_scripts/allinOne.bash", "rb") as f:
+                script_content = f.read()
+                user_data = base64.b64encode(script_content).decode('utf-8')
         
         url = "https://api.vultr.com/v2/instances"
         params = {
@@ -138,6 +143,7 @@ class VultrServer:
             "os_id": os_id,
             "backups": backups,
             "hostname": hostname,
+            "user_data": user_data
         }
 
         response = self._call_request(url=url, params=params, method = "POST")
